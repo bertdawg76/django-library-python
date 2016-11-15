@@ -26,9 +26,11 @@ class UserCreateSerializer(serializers.ModelSerializer):
 class BranchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Branch
+        fields = '__all__'
 
 
 class BookSerializer(serializers.ModelSerializer):
+    book_due_date = serializers.ReadOnlyField()
     class Meta:
         model = Book
         fields = '__all__'

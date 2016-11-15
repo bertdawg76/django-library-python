@@ -61,8 +61,23 @@ class Book(models.Model):
     book_genre = models.CharField(max_length=100)
     book_shelf = models.ForeignKey('Shelf', on_delete=models.CASCADE, default=2)
     is_available = models.BooleanField(default=True)
+
+    @property
+    def book_due_date(self):
+        d = Checkout.objects.filter(book_id=self.id).order_by('-due_date').first()
+        print(d)
+        if d:
+            return d.due_date
+
+        return 'nothing to see'
+
     def __str__(self):
         return self.book_name
+
+    # @property
+    # def book_due_date(self):
+    #     d = self.Checkout
+    #     return d.due_date
 
 
 class Checkout(models.Model):

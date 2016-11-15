@@ -48,6 +48,7 @@ class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     pagination_class = BookLimitOffsetPagination
+
     # filter_backends = [SearchFilter]
     # search_fields = ['book_author', 'book_name', 'book_shelf']
     # permission_classes = (IsAllowed, )
@@ -79,16 +80,20 @@ class BookViewSet(viewsets.ModelViewSet):
     @list_route(methods=['POST'])
 
     def upload_book(self, request):
-        book = Book(
-            book_name=self.request.data['book_name'],
-            book_author=self.request.data['book_author'],
-            book_isbn=self.request.data['book_isbn'],
-            book_genre=self.request.data['book_genre'],
-            book_image=self.request.data['book_image'],
-            book_shelf=self.request.data['book_shelf']
-        )
-        book.save()
-        return HttpResponseRedirect('localhost:3000/bookdisplay/')
+        print(self.request.data)
+        if self.request.data['isLibrarian']:
+            shelf = Shelf.objects.get(id=request.data['book_shelf'])
+            book = Book(
+                book_name=self.request.data['book_name'],
+                book_author=self.request.data['book_author'],
+                book_isbn=self.request.data['book_isbn'],
+                book_genre=self.request.data['book_genre'],
+                book_image=self.request.data['book_image'],
+                book_shelf=shelf,
+            )
+
+            book.save()
+        return HttpResponseRedirect('http://127.0.0.1:3000/bookdisplay')
 
 
 
@@ -98,6 +103,7 @@ class CheckoutViewSet(viewsets.ModelViewSet):
     queryset = Checkout.objects.all()
     serializer_class = CheckoutSerializer
     permission_classes = (IsAllowed, )
+    # pagination_class = BookLimitOffsetPagination
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -143,6 +149,7 @@ class ReShelvingViewSet(viewsets.ModelViewSet):
     queryset = Return.objects.all()
     serializer_class = ReturnSerializer
     permission_classes = (OnlyLibrarian,)
+    # pagination_class = BookLimitOffsetPagination
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -175,6 +182,7 @@ class ReturnViewSet(viewsets.ModelViewSet):
 
     queryset = Return.objects.all()
     serializer_class = ReturnSerializer
+    # pagination_class = BookLimitOffsetPagination
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
